@@ -1,10 +1,9 @@
 //
 //  SchroederAllPass.hpp
-//  SchroederAllPassTest
 //
-//  Created by Sam on 16/02/2018.
-//  Copyright © 2018 Sam. All rights reserved.
+//  Created by Squishy on 14/02/2018.
 //
+//  If you use this, please credit me :)
 
 #ifndef SchroederAllPass_hpp
 #define SchroederAllPass_hpp
@@ -19,10 +18,8 @@
 
 class SchroederAllPass{
     CircularBuffer CB{44100};
-    
-    int Fs;
-    float delayLength;
-    float g;
+    float delayLength, g;
+	
 public:
     SchroederAllPass(float inValue, float inG);
         
@@ -37,8 +34,6 @@ public:
     void setDelayLength(float inValue);
     
     float getDelayLength();
-    
-    void setFs(int inValue);
 };
 
 #endif /* SchroederAllPass_hpp */

@@ -1,16 +1,15 @@
 //
 //  SchroederAllPass.cpp
-//  SchroederAllPassTest
 //
-//  Created by Sam on 16/02/2018.
-//  Copyright © 2018 Sam. All rights reserved.
+//  Created by Squishy on 14/02/2018.
 //
+//  If you use this, please credit me :)
 
 #include "SchroederAllPass.hpp"
 
 SchroederAllPass::SchroederAllPass(float inValue, float inG){
-    delayLength = inValue;
-    g = inG;
+	setDelayLength(inValue);
+	setFeedback(inG);
 }
 
 void SchroederAllPass::process(float* samples, int bufferSize){
@@ -39,7 +38,11 @@ float SchroederAllPass::getFeedback(){
 }
 
 void SchroederAllPass::setDelayLength(float inValue){
-    delayLength = inValue;
+	if(inValue > 1.0)
+		delayLength = inValue;
+	else
+		delayLength = 1.0;
+	
     if (delayLength > CB.getBufferLength())
         CB.setBufferLength(delayLength);
 }
@@ -47,9 +50,3 @@ void SchroederAllPass::setDelayLength(float inValue){
 float SchroederAllPass::getDelayLength(){
     return delayLength;
 }
-
-void SchroederAllPass::setFs(int inValue){
-    Fs = inValue;
-}
-
-
