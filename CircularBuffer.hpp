@@ -11,23 +11,22 @@
 #include <cmath>
 #include <vector>
 
-typedef std::vector<float> Vec_Float;
-enum Selector{upperBound, lowerBound};
-enum InterType{cubic, linear};
-
 class CircularBuffer{
-    Vec_Float buffer;
-    int bufferLength, head, tail;
+    std::vector<float> buffer;
+	
+	int bufferLength;
+	int head = 0;
+	int tail = 0;
 	
 public:
     CircularBuffer(float inValue);
-    
-    float read(float numElementsToRead, InterType inValue);
-    
+	
+	float readCubic(float numElementsToRead);
+
+	float readLinear(float numElementsToRead);
+
     void write(float inValue);
     
-    float interpCalcAmount(float inValue, Selector inSelector);
-
     float cubicInterpolation(double y0, double y1, double y2, double y3, double mu);
     
     float getSample(float inValue);

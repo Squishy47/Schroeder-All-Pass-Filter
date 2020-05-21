@@ -19,7 +19,7 @@ void SchroederAllPass::process(float* samples, int bufferSize){
 }
 
 float SchroederAllPass::processSingleSample(float sample){
-    delayedSample = CB.read(delayLength, "Cubic");
+    delayedSample = CB.readCubic(delayLength);
     
     CB.write(sample + (delayedSample * g));
 
@@ -27,8 +27,6 @@ float SchroederAllPass::processSingleSample(float sample){
 
     return (delayedSample + feedFordwardSample);
 }
-
-
 
 void SchroederAllPass::setFeedback(float inValue){
     g = inValue;
