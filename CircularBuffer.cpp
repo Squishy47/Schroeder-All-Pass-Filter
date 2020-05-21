@@ -1,77 +1,82 @@
 //
 //  CircularBuffer.cpp
-//  CircularBuffer - All
 //
 //  Created by Squishy on 14/02/2018.
 //
+//  If you use this, please credit me :)
+
 #include "CircularBuffer.hpp"
 
 CircularBuffer::CircularBuffer(float inValue){
-    bufferLength = inValue;
-    buffer.resize(bufferLength);
+	setBufferLength(inValue);
 }
 
-float CircularBuffer::read(float numElementsToRead, std::string interpType){
-    if(interpType == "Cubic"){
-        float y1 = interpCalcAmount(numElementsToRead, "lower");
-        float y2 = interpCalcAmount(numElementsToRead, "upper");
-    
-        float y0 = interpCalcAmount(numElementsToRead - 1, "lower");
-        float y3 = interpCalcAmount(numElementsToRead + 1, "upper");
-    
-        float mu = numElementsToRead - y1;
+float CircularBuffer::read(float index, InterType inValue){
+	float y0, y1, y2, y3, mu, upper, lower, interpAmount;
+	
+	switch(inValue){
+		case cubic:{
+				y0 = interpCalcAmount(index - 1, lowerBound);
+				y1 = interpCalcAmount(index, lowerBound);
+				y2 = interpCalcAmount(index, upperBound);
+				y3 = interpCalcAmount(index + 1, upperBound);
 
-        return cubicInterpolation(getSample(y0), getSample(y1), getSample(y2), getSample(y3), mu);
-    }
-    else{
-        //Linear
-        float upper = interpCalcAmount(numElementsToRead, "upper");
-        float lower = interpCalcAmount(numElementsToRead, "lower");
-        float interpAmount = numElementsToRead - lower;
-        return (getSample(upper) * interpAmount + (1.0 - interpAmount) * getSample(lower));
-    }
+				mu = index - y1;
+
+				return cubicInterpolation(getSample(y0), getSample(y1), getSample(y2), getSample(y3), mu);
+			break;
+		}
+		case linear:{
+				upper = interpCalcAmount(index, upperBound);
+				lower = interpCalcAmount(index, lowerBound);
+				interpAmount = index - lower;
+				return (getSample(upper) * interpAmount + (1.0 - interpAmount) * getSample(lower));
+			break;
+		}
+		default:
+			return 0.0;
+		break;
+	}
 }
 
 void CircularBuffer::write(float inValue){
     head++;
-
-    if(head > bufferLength - 1)
-        head -= bufferLength;
-    else if(head < 0)
-        tail += bufferLength;
-    
-    buffer[head] = inValue;
+    buffer[head % bufferLength] = inValue;
 }
 
-float CircularBuffer::interpCalcAmount(float inValue, std::string inSelector){
-    float upper, lower, inRounded = round(inValue);
+float CircularBuffer::interpCalcAmount(float inValue, Selector inSelector){
+    float upper, lower, isRounded = round(inValue);
     
-    if(inRounded > inValue){
-        upper = inRounded;
+    if(isRounded > inValue){
+        upper = isRounded;
         lower = upper - 1;
     }
     else{
-        lower = inRounded;
+        lower = isRounded;
         upper = lower + 1;
     }
-    
-    if(inSelector == "upper")
-        return upper;
-    else if(inSelector == "lower")
-        return lower;
-    else
-        return 0.0;
+	
+	switch(inSelector){
+		case upperBound:
+			return upper;
+			break;
+		case lowerBound:
+			return lower;
+			break;
+		default:
+			return 0.0;
+	}
 }
 
 float CircularBuffer::getSample(float inValue){
     tail = head - inValue;
-    
-    if (tail > bufferLength - 1)
-        tail -= bufferLength;
-    else if (tail < 0)
-        tail += bufferLength;
-    
-    return buffer[tail];
+	
+	if (tail > bufferLength - 1)
+		tail -= bufferLength;
+	else if (tail < 0)
+		tail += bufferLength;
+	
+	return buffer[tail];
 }
 
 void CircularBuffer::setBufferLength(float inValue){
@@ -85,7 +90,6 @@ int CircularBuffer::getBufferLength(){
 
 float CircularBuffer::cubicInterpolation(double y0, double y1, double y2, double y3, double mu){
     //Cubic interp taken from: http://paulbourke.net/miscellaneous/interpolation/
-
     double a0, a1, a2, a3, mu2;
     
     mu2 = mu * mu;
